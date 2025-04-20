@@ -7,7 +7,7 @@ import csv
 import filetype
 
 st.set_page_config(page_title="Smart File Parser & Cleaner", layout="centered")
-st.title("Smart File Parser & Cleaner ")
+st.title("📂 Smart File Parser & Cleaner (Web)")
 
 # === Utility functions ===
 def detect_file_type(uploaded_file):
@@ -105,8 +105,19 @@ if uploaded_file:
         final_df = clean_dataframe(final_df)
         st.dataframe(final_df)
 
-        csv = final_df.to_csv(index=False, quoting=csv.QUOTE_ALL).encode("utf-8")
-        st.download_button("⬇️ Download Cleaned CSV", data=csv, file_name="cleaned_output.csv", mime="text/csv")
+        # === Export options ===
+        export_format = st.selectbox("Choose export format", ["CSV", "Excel (.xlsx)"])
+
+        if export_format == "CSV":
+            csv = final_df.to_csv(index=False, quoting=csv.QUOTE_ALL).encode("utf-8")
+            st.download_button("⬇️ Download CSV", data=csv, file_name="cleaned_output.csv", mime="text/csv")
+
+        elif export_format == "Excel (.xlsx)":
+            excel_buffer = io.BytesIO()
+            with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+                final_df.to_excel(writer, index=False, sheet_name="Sheet1")
+            excel_buffer.seek(0)
+            st.download_button("⬇️ Download Excel", data=excel_buffer, file_name="cleaned_output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     except Exception as e:
         st.error(f"Error processing file: {e}")
