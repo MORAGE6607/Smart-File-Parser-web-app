@@ -1,4 +1,6 @@
 streamlit
 pandas
-filetype
 openpyxl
+filetype
+python-docx
+lxml
